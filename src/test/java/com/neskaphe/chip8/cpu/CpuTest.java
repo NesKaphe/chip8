@@ -100,6 +100,30 @@ public class CpuTest {
     }
 
     @Test
+    void shouldExecute5xy0Instruction_whenVxEqualsVy() {
+        ram.loadBytes(0x200, new byte[] {0x52, 0x30});
+        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
+        cpu.setV(2, (byte) 0x7F);
+        cpu.setV(3, (byte) 0x7F);
+
+        cpu.step();
+
+        assertEquals(0x204, cpu.getPc());
+    }
+
+    @Test
+    void shouldExecute5xy0Instruction_whenVxNotEqualsVy() {
+        ram.loadBytes(0x200, new byte[] {0x52, 0x30});
+        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
+        cpu.setV(2, (byte) 0x7F);
+        cpu.setV(3, (byte) 0xF7);
+
+        cpu.step();
+
+        assertEquals(0x202, cpu.getPc());
+    }
+
+    @Test
     void shouldExecute6xkkInstruction() {
         byte byteInRegister = 0x0F;
         ram.loadBytes(0x200, new byte[] {0x6F, byteInRegister}); //6F0F, LD Vx, byte

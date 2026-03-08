@@ -2,7 +2,6 @@ package com.neskaphe.chip8.cpu;
 
 public class Opcode {
 
-    public static final int UNSIGNED_FLAG = 0xFF;
     private final int value;
 
     private Opcode(int value) {
@@ -10,7 +9,7 @@ public class Opcode {
     }
 
     public static Opcode fromBytes(byte high, byte low) {
-        return new Opcode((high & UNSIGNED_FLAG) << 8 | low & UNSIGNED_FLAG);
+        return new Opcode((high & 0xFF) << 8 | low & 0xFF);
     }
 
     public int type() {
