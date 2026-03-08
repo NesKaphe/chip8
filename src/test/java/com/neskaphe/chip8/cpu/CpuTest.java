@@ -12,10 +12,12 @@ public class CpuTest {
     public static final InstructionDecoder DECODER_NO_OP_INSTRUCTION = (opcode) -> (cpu) -> {};
 
     private Ram ram;
+    private Cpu cpu;
 
     @BeforeEach
     void setUp() {
         ram = new Ram();
+        cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
     }
 
     @Test
@@ -50,7 +52,6 @@ public class CpuTest {
     @Test
     void shouldExecute1nnnInstruction() {
         ram.loadBytes(0x200, new byte[] {0x13, 0x21});
-        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
 
         cpu.step();
 
@@ -60,7 +61,6 @@ public class CpuTest {
     @Test
     void shouldExecute3xkkInstruction_whenVEqualsKk() {
         ram.loadBytes(0x200, new byte[] {0x30, 0x7F});
-        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
         cpu.setV(0, (byte) 0x7F);
 
         cpu.step();
@@ -71,7 +71,6 @@ public class CpuTest {
     @Test
     void shouldExecute3xkkInstruction_whenVNotEqualsKk() {
         ram.loadBytes(0x200, new byte[] {0x30, 0x7F});
-        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
 
         cpu.step();
 
@@ -81,7 +80,6 @@ public class CpuTest {
     @Test
     void shouldExecute4xkkInstruction_whenVEqualsKk() {
         ram.loadBytes(0x200, new byte[] {0x41, 0x7F});
-        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
         cpu.setV(1, (byte) 0x7F);
 
         cpu.step();
@@ -92,7 +90,6 @@ public class CpuTest {
     @Test
     void shouldExecute4xkkInstruction_whenVNotEqualsKk() {
         ram.loadBytes(0x200, new byte[] {0x41, 0x7F});
-        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
 
         cpu.step();
 
@@ -102,7 +99,6 @@ public class CpuTest {
     @Test
     void shouldExecute5xy0Instruction_whenVxEqualsVy() {
         ram.loadBytes(0x200, new byte[] {0x52, 0x30});
-        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
         cpu.setV(2, (byte) 0x7F);
         cpu.setV(3, (byte) 0x7F);
 
@@ -114,7 +110,6 @@ public class CpuTest {
     @Test
     void shouldExecute5xy0Instruction_whenVxNotEqualsVy() {
         ram.loadBytes(0x200, new byte[] {0x52, 0x30});
-        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
         cpu.setV(2, (byte) 0x7F);
         cpu.setV(3, (byte) 0xF7);
 
@@ -127,7 +122,6 @@ public class CpuTest {
     void shouldExecute6xkkInstruction() {
         byte byteInRegister = 0x0F;
         ram.loadBytes(0x200, new byte[] {0x6F, byteInRegister}); //6F0F, LD Vx, byte
-        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
 
         cpu.step();
 
@@ -137,7 +131,6 @@ public class CpuTest {
     @Test
     void shouldExecute7xkkInstruction() {
         ram.loadBytes(0x200, new byte[] {0x75, (byte) 0xF2});
-        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
         cpu.setV(5, (byte) 0x0F);
 
         cpu.step();
@@ -148,7 +141,6 @@ public class CpuTest {
     @Test
     void shouldExecute9xy0Instruction_whenVxEqualsVy() {
         ram.loadBytes(0x200, new byte[] {(byte) 0x92, 0x30});
-        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
         cpu.setV(2, (byte) 0x7F);
         cpu.setV(3, (byte) 0x7F);
 
@@ -160,12 +152,19 @@ public class CpuTest {
     @Test
     void shouldExecute9xy0Instruction_whenVxNotEqualsVy() {
         ram.loadBytes(0x200, new byte[] {(byte) 0x92, 0x30});
-        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
         cpu.setV(2, (byte) 0x7F);
         cpu.setV(3, (byte) 0xF7);
 
         cpu.step();
 
         assertEquals(0x204, cpu.getPc());
+    }
+
+    @Test
+    void shouldExecuteAnnnInstruction() {
+        ram.loadBytes(0x200, new byte[] {(byte) 0xA4, 0x51});
+        cpu.step();
+
+        assertEquals(0x451, cpu.getI());
     }
 }

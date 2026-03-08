@@ -11,6 +11,7 @@ public class InstructionDecoderImpl implements InstructionDecoder {
     private static final int OPCODE_LOAD_TYPE = 0x6;
     private static final int OPCODE_ADD_BYTE_TYPE = 0x7;
     private static final int OPCODE_SKIP_NOT_EQUAL_VREGISTERS_TYPE = 0x9;
+    private static final int OPCODE_SET_I_REGISTER_TYPE = 0xA;
 
     @Override
     public Instruction decode(Opcode opcode) {
@@ -22,6 +23,7 @@ public class InstructionDecoderImpl implements InstructionDecoder {
             case OPCODE_LOAD_TYPE -> loadInstruction(opcode);
             case OPCODE_ADD_BYTE_TYPE -> addByteInstruction(opcode);
             case OPCODE_SKIP_NOT_EQUAL_VREGISTERS_TYPE -> skipNotEqualVRegistersInstruction(opcode);
+            case OPCODE_SET_I_REGISTER_TYPE -> setIRegisterInstruction(opcode);
             default -> throw new InvalidOpCodeException(opcode);
         };
     }
@@ -33,7 +35,7 @@ public class InstructionDecoderImpl implements InstructionDecoder {
     private static Instruction skipEqualInstruction(Opcode opcode) {
         return (cpu) -> {
             if ((cpu.getV(opcode.x()) & 0xFF) == opcode.kk()) {
-                cpu.skipNextInstruction();
+                cpu.moveToNextInstruction();
             }
         };
     }
@@ -41,7 +43,7 @@ public class InstructionDecoderImpl implements InstructionDecoder {
     private static Instruction skipNotEqualInstruction(Opcode opcode) {
         return (cpu) -> {
             if ((cpu.getV(opcode.x()) & 0xFF) != opcode.kk()) {
-                cpu.skipNextInstruction();
+                cpu.moveToNextInstruction();
             }
         };
     }
@@ -52,7 +54,7 @@ public class InstructionDecoderImpl implements InstructionDecoder {
         }
         return (cpu) -> {
             if ((cpu.getV(opcode.x()) & 0xFF) == (cpu.getV(opcode.y()) & 0xFF)) {
-                cpu.skipNextInstruction();
+                cpu.moveToNextInstruction();
             }
         };
     }
@@ -75,8 +77,12 @@ public class InstructionDecoderImpl implements InstructionDecoder {
         }
         return (cpu) -> {
             if ((cpu.getV(opcode.x()) & 0xFF) != (cpu.getV(opcode.y()) & 0xFF)) {
-                cpu.skipNextInstruction();
+                cpu.moveToNextInstruction();
             }
         };
+    }
+
+    private static Instruction setIRegisterInstruction(Opcode opcode) {
+        return cpu -> cpu.setI(opcode.nnn());
     }
 }

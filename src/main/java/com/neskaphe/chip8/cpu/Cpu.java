@@ -3,11 +3,14 @@ package com.neskaphe.chip8.cpu;
 import com.neskaphe.chip8.memory.MemoryAccessor;
 
 public class Cpu {
+    private static final int PC_STEP = 2;
+
     private final MemoryAccessor memory;
     private final InstructionDecoder decoder;
 
     private int pc;
     private final byte[] vRegister;
+    private int iRegister;
 
     public Cpu(MemoryAccessor memory, InstructionDecoder decoder, int initialPc) {
         this.memory = memory;
@@ -21,7 +24,9 @@ public class Cpu {
         byte low = memory.read(pc + 1);
 
         Instruction instruction = decoder.decode(Opcode.fromBytes(high, low));
-        pc += 2;
+
+        moveToNextInstruction();
+
         instruction.execute(this);
     }
 
@@ -33,8 +38,8 @@ public class Cpu {
         this.pc = newPc;
     }
 
-    void skipNextInstruction() {
-        setPc(getPc() + 2);
+    void moveToNextInstruction() {
+        setPc(getPc() + PC_STEP);
     }
 
     byte getV(int vIndex) {
@@ -45,5 +50,11 @@ public class Cpu {
         vRegister[vIndex] = value;
     }
 
+    int getI() {
+        return iRegister;
+    }
 
+    void setI(int value) {
+        this.iRegister = value;
+    }
 }
