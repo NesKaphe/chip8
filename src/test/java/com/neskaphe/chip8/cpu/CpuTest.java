@@ -4,6 +4,8 @@ import com.neskaphe.chip8.memory.Ram;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Random;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CpuTest {
@@ -17,20 +19,20 @@ public class CpuTest {
     @BeforeEach
     void setUp() {
         ram = new Ram();
-        cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
+        cpu = new Cpu(ram, new InstructionDecoderImpl(), new Random(), 0x200);
     }
 
     @Test
     void shouldStartAtDecidedPc() {
         int initialPc = 0x200;
-        Cpu cpu = new Cpu(ram, DECODER_NO_OP_INSTRUCTION, initialPc);
+        Cpu cpu = new Cpu(ram, DECODER_NO_OP_INSTRUCTION, new Random(), initialPc);
 
         assertEquals(initialPc, cpu.getPc());
     }
 
     @Test
     void shouldIncrementPCAfterInstruction() {
-        Cpu cpu = new Cpu(ram, DECODER_NO_OP_INSTRUCTION, 0x200);
+        Cpu cpu = new Cpu(ram, DECODER_NO_OP_INSTRUCTION, new Random(), 0x200);
 
         int pcBeforeStep = cpu.getPc();
         cpu.step();
@@ -42,7 +44,7 @@ public class CpuTest {
     void shouldHavePcFromInstructionWhenModifiedDuringExecution() {
         int jumpToPc = 0x300;
         InstructionDecoder decoder = (opcode -> (cpu) -> cpu.setPc(jumpToPc));
-        Cpu cpu = new Cpu(ram, decoder, 0x200);
+        Cpu cpu = new Cpu(ram, decoder, new Random(), 0x200);
 
         cpu.step();
 
@@ -177,5 +179,17 @@ public class CpuTest {
         cpu.step();
 
         assertEquals(0x456, cpu.getPc());
+    }
+
+    @Test
+    void shouldExecuteCxkkInstruction() {
+        ram.loadBytes(0x200, new byte[] {(byte) 0xC1, (byte) 0xF0});
+        Random seededRandom = new Random(42); //Va produire 186 (0xBA)
+        cpu = new Cpu(ram, new InstructionDecoderImpl(), seededRandom, 0x200);
+
+        cpu.step();
+
+        int unsignedResult = cpu.getV(1) & 0xFF;
+        assertEquals(0xB0, unsignedResult);
     }
 }

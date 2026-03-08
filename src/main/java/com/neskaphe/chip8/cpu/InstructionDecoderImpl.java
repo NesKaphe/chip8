@@ -13,6 +13,7 @@ public class InstructionDecoderImpl implements InstructionDecoder {
     private static final int OPCODE_SKIP_NOT_EQUAL_V_REGISTERS_TYPE = 0x9;
     private static final int OPCODE_SET_I_REGISTER_TYPE = 0xA;
     private static final int OPCODE_JUMP_VO_ADDR_TYPE = 0xB;
+    private static final int OPCODE_RANDOM_BYTE_KK_TYPE = 0xC;
 
     @Override
     public Instruction decode(Opcode opcode) {
@@ -26,6 +27,7 @@ public class InstructionDecoderImpl implements InstructionDecoder {
             case OPCODE_SKIP_NOT_EQUAL_V_REGISTERS_TYPE -> skipNotEqualVRegistersInstruction(opcode);
             case OPCODE_SET_I_REGISTER_TYPE -> setIRegisterInstruction(opcode);
             case OPCODE_JUMP_VO_ADDR_TYPE -> jumpV0AddrInstruction(opcode);
+            case OPCODE_RANDOM_BYTE_KK_TYPE -> randomByteAndKkInstruction(opcode);
             default -> throw new InvalidOpCodeException(opcode);
         };
     }
@@ -88,10 +90,16 @@ public class InstructionDecoderImpl implements InstructionDecoder {
         return cpu -> cpu.setI(opcode.nnn());
     }
 
-    private Instruction jumpV0AddrInstruction(Opcode opcode) {
+    private static Instruction jumpV0AddrInstruction(Opcode opcode) {
         return cpu -> {
             int v0Value = cpu.getV(0) & 0xFF;
             cpu.setPc(v0Value + opcode.nnn());
+        };
+    }
+
+    private static Instruction randomByteAndKkInstruction(Opcode opcode) {
+        return cpu -> {
+            cpu.setV(opcode.x(), (byte) (cpu.generateRandomByte() & opcode.kk()));
         };
     }
 }
