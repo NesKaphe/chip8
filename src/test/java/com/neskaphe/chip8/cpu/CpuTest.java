@@ -48,13 +48,23 @@ public class CpuTest {
     }
 
     @Test
-    void shouldExecute6xkkInstruction() {
-        byte byteInRegister = 0x0F;
-        ram.loadBytes(0x200, new byte[] {0x6A, byteInRegister}); //6A0F, LD Vx, byte
+    void shouldExecute1nnnInstruction() {
+        ram.loadBytes(0x200, new byte[] {0x13, 0x21});
         Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
 
         cpu.step();
 
-        assertEquals(byteInRegister, cpu.getV(0xA));
+        assertEquals(0x321, cpu.getPc());
+    }
+
+    @Test
+    void shouldExecute6xkkInstruction() {
+        byte byteInRegister = 0x0F;
+        ram.loadBytes(0x200, new byte[] {0x6F, byteInRegister}); //6F0F, LD Vx, byte
+        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
+
+        cpu.step();
+
+        assertEquals(byteInRegister, cpu.getV(0xF));
     }
 }
