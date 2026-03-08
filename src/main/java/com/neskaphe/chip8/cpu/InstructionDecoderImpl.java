@@ -10,6 +10,7 @@ public class InstructionDecoderImpl implements InstructionDecoder {
     private static final int OPCODE_SKIP_EQUAL_VREGISTERS_TYPE = 0x5;
     private static final int OPCODE_LOAD_TYPE = 0x6;
     private static final int OPCODE_ADD_BYTE_TYPE = 0x7;
+    private static final int OPCODE_SKIP_NOT_EQUAL_VREGISTERS_TYPE = 0x9;
 
     @Override
     public Instruction decode(Opcode opcode) {
@@ -20,6 +21,7 @@ public class InstructionDecoderImpl implements InstructionDecoder {
             case OPCODE_SKIP_EQUAL_VREGISTERS_TYPE -> skipEqualVRegistersInstruction(opcode);
             case OPCODE_LOAD_TYPE -> loadInstruction(opcode);
             case OPCODE_ADD_BYTE_TYPE -> addByteInstruction(opcode);
+            case OPCODE_SKIP_NOT_EQUAL_VREGISTERS_TYPE -> skipNotEqualVRegistersInstruction(opcode);
             default -> throw new InvalidOpCodeException(opcode);
         };
     }
@@ -31,7 +33,7 @@ public class InstructionDecoderImpl implements InstructionDecoder {
     private static Instruction skipEqualInstruction(Opcode opcode) {
         return (cpu) -> {
             if ((cpu.getV(opcode.x()) & 0xFF) == opcode.kk()) {
-                cpu.setPc(cpu.getPc() + 2);
+                cpu.skipNextInstruction();
             }
         };
     }
@@ -39,7 +41,7 @@ public class InstructionDecoderImpl implements InstructionDecoder {
     private static Instruction skipNotEqualInstruction(Opcode opcode) {
         return (cpu) -> {
             if ((cpu.getV(opcode.x()) & 0xFF) != opcode.kk()) {
-                cpu.setPc(cpu.getPc() + 2);
+                cpu.skipNextInstruction();
             }
         };
     }
@@ -50,7 +52,7 @@ public class InstructionDecoderImpl implements InstructionDecoder {
         }
         return (cpu) -> {
             if ((cpu.getV(opcode.x()) & 0xFF) == (cpu.getV(opcode.y()) & 0xFF)) {
-                cpu.setPc(cpu.getPc() + 2);
+                cpu.skipNextInstruction();
             }
         };
     }
@@ -64,6 +66,17 @@ public class InstructionDecoderImpl implements InstructionDecoder {
         return (cpu) -> {
             byte currentValueInRegister = cpu.getV(vRegisterIndex);
             cpu.setV(vRegisterIndex, (byte) (currentValueInRegister + opcode.kk()));
+        };
+    }
+
+    private static Instruction skipNotEqualVRegistersInstruction(Opcode opcode) {
+        if(opcode.n() != 0) {
+            throw new InvalidOpCodeException(opcode);
+        }
+        return (cpu) -> {
+            if ((cpu.getV(opcode.x()) & 0xFF) != (cpu.getV(opcode.y()) & 0xFF)) {
+                cpu.skipNextInstruction();
+            }
         };
     }
 }

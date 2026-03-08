@@ -144,4 +144,28 @@ public class CpuTest {
 
         assertEquals(1, cpu.getV(5));
     }
+
+    @Test
+    void shouldExecute9xy0Instruction_whenVxEqualsVy() {
+        ram.loadBytes(0x200, new byte[] {(byte) 0x92, 0x30});
+        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
+        cpu.setV(2, (byte) 0x7F);
+        cpu.setV(3, (byte) 0x7F);
+
+        cpu.step();
+
+        assertEquals(0x202, cpu.getPc());
+    }
+
+    @Test
+    void shouldExecute9xy0Instruction_whenVxNotEqualsVy() {
+        ram.loadBytes(0x200, new byte[] {(byte) 0x92, 0x30});
+        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
+        cpu.setV(2, (byte) 0x7F);
+        cpu.setV(3, (byte) 0xF7);
+
+        cpu.step();
+
+        assertEquals(0x204, cpu.getPc());
+    }
 }

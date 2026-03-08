@@ -33,6 +33,10 @@ public class Cpu {
         this.pc = newPc;
     }
 
+    void skipNextInstruction() {
+        setPc(getPc() + 2);
+    }
+
     byte getV(int vIndex) {
         return vRegister[vIndex];
     }
@@ -40,4 +44,6 @@ public class Cpu {
     void setV(int vIndex, byte value) {
         vRegister[vIndex] = value;
     }
+
+
 }
