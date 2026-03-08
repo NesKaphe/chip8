@@ -9,6 +9,7 @@ public class InstructionDecoderImpl implements InstructionDecoder {
     private static final int OPCODE_SKIP_NOT_EQUAL_TYPE = 0x4;
     private static final int OPCODE_SKIP_EQUAL_VREGISTERS_TYPE = 0x5;
     private static final int OPCODE_LOAD_TYPE = 0x6;
+    private static final int OPCODE_ADD_BYTE_TYPE = 0x7;
 
     @Override
     public Instruction decode(Opcode opcode) {
@@ -18,6 +19,7 @@ public class InstructionDecoderImpl implements InstructionDecoder {
             case OPCODE_SKIP_NOT_EQUAL_TYPE -> skipNotEqualInstruction(opcode);
             case OPCODE_SKIP_EQUAL_VREGISTERS_TYPE -> skipEqualVRegistersInstruction(opcode);
             case OPCODE_LOAD_TYPE -> loadInstruction(opcode);
+            case OPCODE_ADD_BYTE_TYPE -> addByteInstruction(opcode);
             default -> throw new InvalidOpCodeException(opcode);
         };
     }
@@ -55,5 +57,13 @@ public class InstructionDecoderImpl implements InstructionDecoder {
 
     private static Instruction loadInstruction(Opcode opcode) {
         return (cpu) -> cpu.setV(opcode.x(), (byte) opcode.kk());
+    }
+
+    private Instruction addByteInstruction(Opcode opcode) {
+        int vRegisterIndex = opcode.x();
+        return (cpu) -> {
+            byte currentValueInRegister = cpu.getV(vRegisterIndex);
+            cpu.setV(vRegisterIndex, (byte) (currentValueInRegister + opcode.kk()));
+        };
     }
 }

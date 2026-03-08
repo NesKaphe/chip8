@@ -133,4 +133,15 @@ public class CpuTest {
 
         assertEquals(byteInRegister, cpu.getV(0xF));
     }
+
+    @Test
+    void shouldExecute7xkkInstruction() {
+        ram.loadBytes(0x200, new byte[] {0x75, (byte) 0xF2});
+        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
+        cpu.setV(5, (byte) 0x0F);
+
+        cpu.step();
+
+        assertEquals(1, cpu.getV(5));
+    }
 }
