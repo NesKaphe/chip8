@@ -1,0 +1,60 @@
+package com.neskaphe.chip8.cpu;
+
+import com.neskaphe.chip8.memory.Ram;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class CpuTest {
+
+    //No op opération from opcode
+    public static final InstructionDecoder DECODER_NO_OP_INSTRUCTION = (opcode) -> (cpu) -> {};
+
+    private Ram ram;
+
+    @BeforeEach
+    void setUp() {
+        ram = new Ram();
+    }
+
+    @Test
+    void shouldStartAtDecidedPc() {
+        int initialPc = 0x200;
+        Cpu cpu = new Cpu(ram, DECODER_NO_OP_INSTRUCTION, initialPc);
+
+        assertEquals(initialPc, cpu.getPc());
+    }
+
+    @Test
+    void shouldIncrementPCAfterInstruction() {
+        Cpu cpu = new Cpu(ram, DECODER_NO_OP_INSTRUCTION, 0x200);
+
+        int pcBeforeStep = cpu.getPc();
+        cpu.step();
+
+        assertEquals(pcBeforeStep + 2, cpu.getPc());
+    }
+
+    @Test
+    void shouldHavePcFromInstructionWhenModifiedDuringExecution() {
+        int jumpToPc = 0x300;
+        InstructionDecoder decoder = (opcode -> (cpu) -> cpu.setPc(jumpToPc));
+        Cpu cpu = new Cpu(ram, decoder, 0x200);
+
+        cpu.step();
+
+        assertEquals(jumpToPc, cpu.getPc());
+    }
+
+    @Test
+    void shouldExecute6xkkInstruction() {
+        byte byteInRegister = 0x0F;
+        ram.loadBytes(0x200, new byte[] {0x6A, byteInRegister}); //6A0F, LD Vx, byte
+        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
+
+        cpu.step();
+
+        assertEquals(byteInRegister, cpu.getV(0xA));
+    }
+}
