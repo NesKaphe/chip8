@@ -79,6 +79,27 @@ public class CpuTest {
     }
 
     @Test
+    void shouldExecute4xkkInstruction_whenVEqualsKk() {
+        ram.loadBytes(0x200, new byte[] {0x41, 0x7F});
+        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
+        cpu.setV(1, (byte) 0x7F);
+
+        cpu.step();
+
+        assertEquals(0x202, cpu.getPc());
+    }
+
+    @Test
+    void shouldExecute4xkkInstruction_whenVNotEqualsKk() {
+        ram.loadBytes(0x200, new byte[] {0x41, 0x7F});
+        Cpu cpu = new Cpu(ram, new InstructionDecoderImpl(), 0x200);
+
+        cpu.step();
+
+        assertEquals(0x204, cpu.getPc());
+    }
+
+    @Test
     void shouldExecute6xkkInstruction() {
         byte byteInRegister = 0x0F;
         ram.loadBytes(0x200, new byte[] {0x6F, byteInRegister}); //6F0F, LD Vx, byte
