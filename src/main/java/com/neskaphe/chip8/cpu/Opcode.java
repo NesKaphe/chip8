@@ -36,4 +36,8 @@ public class Opcode {
     int nnn() {
         return value & 0x0FFF;
     }
+
+    public int getValue() {
+        return value;
+    }
 }
