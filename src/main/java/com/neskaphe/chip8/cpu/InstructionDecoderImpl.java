@@ -7,11 +7,12 @@ public class InstructionDecoderImpl implements InstructionDecoder {
     private static final int OPCODE_JUMP_TYPE = 0x1;
     private static final int OPCODE_SKIP_EQUAL_TYPE = 0x3;
     private static final int OPCODE_SKIP_NOT_EQUAL_TYPE = 0x4;
-    private static final int OPCODE_SKIP_EQUAL_VREGISTERS_TYPE = 0x5;
+    private static final int OPCODE_SKIP_EQUAL_V_REGISTERS_TYPE = 0x5;
     private static final int OPCODE_LOAD_TYPE = 0x6;
     private static final int OPCODE_ADD_BYTE_TYPE = 0x7;
-    private static final int OPCODE_SKIP_NOT_EQUAL_VREGISTERS_TYPE = 0x9;
+    private static final int OPCODE_SKIP_NOT_EQUAL_V_REGISTERS_TYPE = 0x9;
     private static final int OPCODE_SET_I_REGISTER_TYPE = 0xA;
+    private static final int OPCODE_JUMP_VO_ADDR_TYPE = 0xB;
 
     @Override
     public Instruction decode(Opcode opcode) {
@@ -19,11 +20,12 @@ public class InstructionDecoderImpl implements InstructionDecoder {
             case OPCODE_JUMP_TYPE -> jumpInstruction(opcode);
             case OPCODE_SKIP_EQUAL_TYPE -> skipEqualInstruction(opcode);
             case OPCODE_SKIP_NOT_EQUAL_TYPE -> skipNotEqualInstruction(opcode);
-            case OPCODE_SKIP_EQUAL_VREGISTERS_TYPE -> skipEqualVRegistersInstruction(opcode);
+            case OPCODE_SKIP_EQUAL_V_REGISTERS_TYPE -> skipEqualVRegistersInstruction(opcode);
             case OPCODE_LOAD_TYPE -> loadInstruction(opcode);
             case OPCODE_ADD_BYTE_TYPE -> addByteInstruction(opcode);
-            case OPCODE_SKIP_NOT_EQUAL_VREGISTERS_TYPE -> skipNotEqualVRegistersInstruction(opcode);
+            case OPCODE_SKIP_NOT_EQUAL_V_REGISTERS_TYPE -> skipNotEqualVRegistersInstruction(opcode);
             case OPCODE_SET_I_REGISTER_TYPE -> setIRegisterInstruction(opcode);
+            case OPCODE_JUMP_VO_ADDR_TYPE -> jumpV0AddrInstruction(opcode);
             default -> throw new InvalidOpCodeException(opcode);
         };
     }
@@ -84,5 +86,12 @@ public class InstructionDecoderImpl implements InstructionDecoder {
 
     private static Instruction setIRegisterInstruction(Opcode opcode) {
         return cpu -> cpu.setI(opcode.nnn());
+    }
+
+    private Instruction jumpV0AddrInstruction(Opcode opcode) {
+        return cpu -> {
+            int v0Value = cpu.getV(0) & 0xFF;
+            cpu.setPc(v0Value + opcode.nnn());
+        };
     }
 }

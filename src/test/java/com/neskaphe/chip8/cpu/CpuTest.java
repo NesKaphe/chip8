@@ -163,8 +163,19 @@ public class CpuTest {
     @Test
     void shouldExecuteAnnnInstruction() {
         ram.loadBytes(0x200, new byte[] {(byte) 0xA4, 0x51});
+
         cpu.step();
 
         assertEquals(0x451, cpu.getI());
+    }
+
+    @Test
+    void shouldExecuteBnnnInstruction() {
+        ram.loadBytes(0x200, new byte[] {(byte) 0xB4, 0x52});
+        cpu.setV(0, (byte) 0x04);
+
+        cpu.step();
+
+        assertEquals(0x456, cpu.getPc());
     }
 }
