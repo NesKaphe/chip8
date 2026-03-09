@@ -1,6 +1,7 @@
 package com.neskaphe.chip8.cpu;
 
 import com.neskaphe.chip8.memory.MemoryAccessor;
+import com.neskaphe.chip8.memory.Stack;
 
 import java.util.Random;
 
@@ -14,9 +15,11 @@ public class Cpu {
     private int pc;
     private final byte[] vRegister;
     private int iRegister;
+    private final Stack stack;
 
-    public Cpu(MemoryAccessor memory, InstructionDecoder decoder, Random random, int initialPc) {
+    public Cpu(MemoryAccessor memory, Stack stack, InstructionDecoder decoder, Random random, int initialPc) {
         this.memory = memory;
+        this.stack = stack;
         this.decoder = decoder;
         this.random = random;
         this.pc = initialPc;
@@ -64,5 +67,9 @@ public class Cpu {
 
     byte generateRandomByte() {
         return (byte) random.nextInt(256);
+    }
+
+    public void pushReturnAddressToStack() {
+        stack.push(pc);
     }
 }
