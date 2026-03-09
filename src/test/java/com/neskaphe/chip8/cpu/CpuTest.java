@@ -53,6 +53,17 @@ public class CpuTest {
     }
 
     @Test
+    void shouldExecute00eeInstruction() {
+        ram.loadBytes(0x200, new byte[] {0x24, 0x00}); //call 0x400
+        ram.loadBytes(0x400, new byte[] {0x00, (byte)0xEE}); // RET
+
+        cpu.step();
+        cpu.step();
+
+        assertEquals(0x202, cpu.getPc());
+    }
+
+    @Test
     void shouldExecute1nnnInstruction() {
         ram.loadBytes(0x200, new byte[] {0x13, 0x21});
 

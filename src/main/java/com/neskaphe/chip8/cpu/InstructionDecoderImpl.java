@@ -4,6 +4,9 @@ import com.neskaphe.chip8.exception.InvalidOpCodeException;
 
 public class InstructionDecoderImpl implements InstructionDecoder {
 
+    private static final int OPCODE_SYSTEM_TYPE = 0x0;
+    private static final int OPCODE_SYSTEM_RET_TYPE = 0xEE;
+
     private static final int OPCODE_JUMP_TYPE = 0x1;
     private static final int OPCODE_SUBROUTINE_CALL_TYPE = 0x2;
     private static final int OPCODE_SKIP_EQUAL_TYPE = 0x3;
@@ -16,9 +19,11 @@ public class InstructionDecoderImpl implements InstructionDecoder {
     private static final int OPCODE_JUMP_VO_ADDR_TYPE = 0xB;
     private static final int OPCODE_RANDOM_BYTE_KK_TYPE = 0xC;
 
+
     @Override
     public Instruction decode(Opcode opcode) {
         return switch (opcode.type()) {
+            case OPCODE_SYSTEM_TYPE -> systemInstructions(opcode);
             case OPCODE_JUMP_TYPE -> jumpInstruction(opcode);
             case OPCODE_SUBROUTINE_CALL_TYPE -> subRoutineCallInstruction(opcode);
             case OPCODE_SKIP_EQUAL_TYPE -> skipEqualInstruction(opcode);
@@ -34,6 +39,12 @@ public class InstructionDecoderImpl implements InstructionDecoder {
         };
     }
 
+    private static Instruction systemInstructions(Opcode opcode) {
+        if(opcode.kk() == OPCODE_SYSTEM_RET_TYPE) {
+            return cpu -> cpu.setPc(cpu.popReturnAddressFromStack());
+        }
+        throw new InvalidOpCodeException(opcode);
+    }
 
 
     private static Instruction jumpInstruction(Opcode opcode) {

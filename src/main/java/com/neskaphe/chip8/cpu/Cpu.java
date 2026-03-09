@@ -69,7 +69,11 @@ public class Cpu {
         return (byte) random.nextInt(256);
     }
 
-    public void pushReturnAddressToStack() {
+    void pushReturnAddressToStack() {
         stack.push(pc);
+    }
+
+    int popReturnAddressFromStack() {
+        return stack.pop();
     }
 }
