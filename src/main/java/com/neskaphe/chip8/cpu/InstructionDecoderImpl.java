@@ -98,8 +98,6 @@ public class InstructionDecoderImpl implements InstructionDecoder {
     }
 
     private static Instruction randomByteAndKkInstruction(Opcode opcode) {
-        return cpu -> {
-            cpu.setV(opcode.x(), (byte) (cpu.generateRandomByte() & opcode.kk()));
-        };
+        return cpu -> cpu.setV(opcode.x(), (byte) (cpu.generateRandomByte() & opcode.kk()));
     }
 }
